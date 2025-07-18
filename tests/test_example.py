@@ -21,9 +21,33 @@ TRANSFORM_SCRIPT = "./src/gocam_ingest/transform.py"
 @pytest.fixture
 def example_row():
     return {
-        "example_column_1": "entity_1",
-        "example_column_2": "entity_6",
-        "example_column_3": "biolink:related_to",
+        "id": "gomodel:1234567",
+        "title": "Test GOCAM Model",
+        "taxon": "NCBITaxon:9606",
+        "activities": [
+            {
+                "id": "gomodel:1234567/1",
+                "enabled_by": {
+                    "term": "MGI:1234567",
+                    "evidence": [{"term": "ECO:0000314", "reference": "PMID:1234567"}]
+                },
+                "molecular_function": {
+                    "term": "GO:0003674"
+                }
+            }
+        ],
+        "objects": [
+            {
+                "id": "MGI:1234567",
+                "label": "entity_1",
+                "type": "gene"
+            },
+            {
+                "id": "GO:0003674",
+                "label": "entity_6",
+                "type": "molecular_function"
+            }
+        ]
     }
 
 
@@ -32,14 +56,62 @@ def example_row():
 def example_list_of_rows():
     return [
         {
-            "example_column_1": "entity_1",
-            "example_column_2": "entity_6",
-            "example_column_3": "biolink:related_to",
+            "id": "gomodel:1234567",
+            "title": "Test GOCAM Model 1",
+            "taxon": "NCBITaxon:9606",
+            "activities": [
+                {
+                    "id": "gomodel:1234567/1",
+                    "enabled_by": {
+                        "term": "MGI:1234567",
+                        "evidence": [{"term": "ECO:0000314", "reference": "PMID:1234567"}]
+                    },
+                    "molecular_function": {
+                        "term": "GO:0003674"
+                    }
+                }
+            ],
+            "objects": [
+                {
+                    "id": "MGI:1234567",
+                    "label": "entity_1",
+                    "type": "gene"
+                },
+                {
+                    "id": "GO:0003674",
+                    "label": "entity_6",
+                    "type": "molecular_function"
+                }
+            ]
         },
         {
-            "example_column_1": "entity_2",
-            "example_column_2": "entity_7",
-            "example_column_3": "biolink:related_to",
+            "id": "gomodel:2345678",
+            "title": "Test GOCAM Model 2",
+            "taxon": "NCBITaxon:9606",
+            "activities": [
+                {
+                    "id": "gomodel:2345678/1",
+                    "enabled_by": {
+                        "term": "MGI:2345678",
+                        "evidence": [{"term": "ECO:0000314", "reference": "PMID:2345678"}]
+                    },
+                    "molecular_function": {
+                        "term": "GO:0003675"
+                    }
+                }
+            ],
+            "objects": [
+                {
+                    "id": "MGI:2345678",
+                    "label": "entity_2",
+                    "type": "gene"
+                },
+                {
+                    "id": "GO:0003675",
+                    "label": "entity_7",
+                    "type": "molecular_function"
+                }
+            ]
         },
     ]
 
@@ -71,15 +143,28 @@ def mock_transform_multiple_rows(mock_koza, example_list_of_rows):
 
 
 def test_single_row(mock_transform):
-    assert len(mock_transform) == 3
-    entity = mock_transform[0]
-    assert entity
-    assert entity.name == "entity_1"
+    # Should output: activity entity, gene entity, molecular function entity, 
+    # enabled_by association, molecular_function association = 5 items
+    assert len(mock_transform) == 5
+    
+    # Find the gene entity (should have name "entity_1")
+    gene_entity = next((item for item in mock_transform 
+                       if hasattr(item, 'name') and item.name == "entity_1"), None)
+    assert gene_entity is not None
+    assert gene_entity.id == "MGI:1234567"
 
 
 def test_multiple_rows(mock_transform_multiple_rows):
-    assert len(mock_transform_multiple_rows) == 6
-    entity_a = mock_transform_multiple_rows[0]
-    entity_b = mock_transform_multiple_rows[1]
-    assert entity_a.name == "entity_1"
-    assert entity_b.name == "entity_6"
+    # Should output 5 items per model * 2 models = 10 items
+    assert len(mock_transform_multiple_rows) == 10
+    
+    # Find entities with expected names
+    entity_1 = next((item for item in mock_transform_multiple_rows 
+                    if hasattr(item, 'name') and item.name == "entity_1"), None)
+    entity_2 = next((item for item in mock_transform_multiple_rows 
+                    if hasattr(item, 'name') and item.name == "entity_2"), None)
+    
+    assert entity_1 is not None
+    assert entity_2 is not None
+    assert entity_1.id == "MGI:1234567"
+    assert entity_2.id == "MGI:2345678"
