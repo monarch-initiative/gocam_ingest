@@ -106,11 +106,14 @@ def prepare(
     
     typer.echo(f"Converting {len(yaml_files)} YAML files to JSON...")
     
+    converted_files = []
+    
     for yaml_file in yaml_files:
         json_file = output_path / f"{yaml_file.stem}.json"
         
         if json_file.exists():
             typer.echo(f"Skipping {yaml_file.name} (JSON already exists)")
+            converted_files.append(json_file)
             continue
         
         try:
@@ -121,12 +124,43 @@ def prepare(
                 json.dump(yaml_data, f, indent=2, ensure_ascii=False)
             
             typer.echo(f"Converted {yaml_file.name} → {json_file.name}")
+            converted_files.append(json_file)
             
         except Exception as e:
             typer.echo(f"Error converting {yaml_file.name}: {e}")
             continue
     
-    typer.echo(f"Conversion complete. JSON files saved to {output_path}")
+    typer.echo(f"Conversion complete. {len(converted_files)} JSON files in {output_path}")
+    
+    # Update transform.yaml with the file list
+    transform_yaml_path = Path(__file__).parent / "transform.yaml"
+    typer.echo(f"Updating {transform_yaml_path} with file list...")
+    
+    # Read current transform.yaml
+    with open(transform_yaml_path, 'r') as f:
+        content = f.read()
+    
+    # Generate file list
+    file_list_lines = []
+    for json_file in sorted(converted_files):
+        relative_path = f"./{json_file}"
+        file_list_lines.append(f'  - "{relative_path}"')
+    
+    file_list_str = "\n".join(file_list_lines)
+    
+    # Replace the files section
+    import re
+    pattern = r'files:\s*\[.*?\]'
+    replacement = f"files:\n{file_list_str}"
+    new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+    
+    # Also remove file_archive line if present
+    new_content = re.sub(r'.*file_archive:.*\n', '', new_content)
+    
+    with open(transform_yaml_path, 'w') as f:
+        f.write(new_content)
+    
+    typer.echo(f"Updated {transform_yaml_path} with {len(converted_files)} files")
 
 
 @app.command()
