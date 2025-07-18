@@ -3,7 +3,7 @@
 
 name: "Gene Ontology_GO causal activity models"
 metadata: "./src/gocam_ingest/metadata.yaml"
-format: "json" # Format of the data files (csv or json)
+format: "yaml" # Format of the data files
 files:
   - "./data/gocam_models/56aac7ad00000038.yaml"
   - "./data/gocam_models/56aac7ad00000079.yaml"
@@ -47,7 +47,7 @@ edge_properties:
 # field_type_map: Dict of field names and their type (using the FieldType enum)
 # filters: List of filters to apply
 # required_properties: List of properties which must be in json data files
-# json_path: List of paths within JSON object containing data to process
+json_path: ["activities"] # Process each activity as a separate row
 # transform_code: Path to a python file to transform the data
 # transform_mode: Which mode to use to process the transform file
 # global_table: Path to a global table file
