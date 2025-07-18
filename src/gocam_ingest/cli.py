@@ -6,6 +6,7 @@ from pathlib import Path
 
 import requests
 import typer
+import yaml
 
 app = typer.Typer()
 logger = logging.getLogger(__name__)
@@ -76,6 +77,56 @@ def download(force: bool = typer.Option(False, help="Force download of data, eve
     """Download GOCAM models."""
     typer.echo("Downloading GOCAM models...")
     download_gocam_models()
+
+
+@app.command()
+def prepare(
+    input_dir: str = typer.Option("data/gocam_models", help="Directory containing YAML files"),
+    output_dir: str = typer.Option("data/gocam_models_converted_json", help="Directory for JSON output files"),
+    limit: int = typer.Option(None, help="Number of files to convert (for testing)"),
+):
+    """Convert YAML GOCAM models to JSON for Koza processing."""
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
+    
+    if not input_path.exists():
+        typer.echo(f"Input directory {input_path} does not exist")
+        raise typer.Exit(1)
+    
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    yaml_files = list(input_path.glob("*.yaml"))
+    
+    if not yaml_files:
+        typer.echo(f"No YAML files found in {input_path}")
+        raise typer.Exit(1)
+    
+    if limit:
+        yaml_files = yaml_files[:limit]
+    
+    typer.echo(f"Converting {len(yaml_files)} YAML files to JSON...")
+    
+    for yaml_file in yaml_files:
+        json_file = output_path / f"{yaml_file.stem}.json"
+        
+        if json_file.exists():
+            typer.echo(f"Skipping {yaml_file.name} (JSON already exists)")
+            continue
+        
+        try:
+            with open(yaml_file, 'r', encoding='utf-8') as f:
+                yaml_data = yaml.safe_load(f)
+            
+            with open(json_file, 'w', encoding='utf-8') as f:
+                json.dump(yaml_data, f, indent=2, ensure_ascii=False)
+            
+            typer.echo(f"Converted {yaml_file.name} → {json_file.name}")
+            
+        except Exception as e:
+            typer.echo(f"Error converting {yaml_file.name}: {e}")
+            continue
+    
+    typer.echo(f"Conversion complete. JSON files saved to {output_path}")
 
 
 @app.command()
