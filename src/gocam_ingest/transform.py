@@ -39,6 +39,24 @@ def determine_node_category(entity_id: str, entity_type: str = None) -> list:
     else:
         return ["biolink:Entity"]
 
+def get_entity_class_and_category(entity_id: str, entity_type: str = None):
+    """Get the appropriate biolink class and category for an entity."""
+    prefix = extract_curie_prefix(entity_id)
+    
+    if prefix in ['ZFIN', 'MGI', 'RGD', 'SGD', 'FlyBase', 'WormBase', 'TAIR']:
+        return Gene, ["biolink:Gene"]
+    elif prefix == 'GO':
+        if entity_type and 'molecular_function' in entity_type.lower():
+            return MolecularActivity, ["biolink:MolecularActivity"]
+        elif entity_type and 'biological_process' in entity_type.lower():
+            return BiologicalProcessOrActivity, ["biolink:BiologicalProcessOrActivity"]
+        else:
+            return Entity, ["biolink:OntologyClass"]
+    elif 'gomodel:' in entity_id:
+        return BiologicalProcessOrActivity, ["biolink:BiologicalProcessOrActivity"]
+    else:
+        return Entity, ["biolink:Entity"]
+
 while (row := koza_app.get_row()) is not None:
     # Now each row is the full GOCAM model document
     model_data = row
@@ -73,10 +91,11 @@ while (row := koza_app.get_row()) is not None:
                 
             # Create activity node
             if activity_id not in entities_written:
-                activity_entity = BiologicalProcessOrActivity(
+                entity_class, category = get_entity_class_and_category(activity_id)
+                activity_entity = entity_class(
                     id=activity_id,
                     name=f"Activity from {title}",
-                    category=["biolink:BiologicalProcessOrActivity"]
+                    category=category
                 )
                 koza_app.write(activity_entity)
                 entities_written.add(activity_id)
@@ -90,10 +109,11 @@ while (row := koza_app.get_row()) is not None:
                     # Create gene entity
                     if gene_id not in entities_written:
                         gene_label = objects_dict.get(gene_id, {}).get('label', gene_id)
-                        gene_entity = Gene(
+                        entity_class, category = get_entity_class_and_category(gene_id)
+                        gene_entity = entity_class(
                             id=gene_id,
                             name=gene_label,
-                            category=determine_node_category(gene_id)
+                            category=category
                         )
                         koza_app.write(gene_entity)
                         entities_written.add(gene_id)
@@ -128,10 +148,12 @@ while (row := koza_app.get_row()) is not None:
                     # Create molecular activity entity
                     if mf_term not in entities_written:
                         mf_label = objects_dict.get(mf_term, {}).get('label', mf_term)
-                        mf_entity = MolecularActivity(
+                        mf_type = objects_dict.get(mf_term, {}).get('type', '')
+                        entity_class, category = get_entity_class_and_category(mf_term, mf_type)
+                        mf_entity = entity_class(
                             id=mf_term,
                             name=mf_label,
-                            category=["biolink:MolecularActivity"]
+                            category=category
                         )
                         koza_app.write(mf_entity)
                         entities_written.add(mf_term)
@@ -152,10 +174,11 @@ while (row := koza_app.get_row()) is not None:
     # Process any remaining objects not yet written
     for obj_id, obj_data in objects_dict.items():
         if obj_id not in entities_written:
-            entity = Entity(
+            entity_class, category = get_entity_class_and_category(obj_id, obj_data.get('type'))
+            entity = entity_class(
                 id=obj_id,
                 name=obj_data.get('label', obj_id),
-                category=determine_node_category(obj_id, obj_data.get('type'))
+                category=category
             )
             koza_app.write(entity)
             entities_written.add(obj_id)
