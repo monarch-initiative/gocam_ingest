@@ -14,14 +14,16 @@ define HELP
 │ Targets:                                                  │
 │     help                Print this help message           │
 │                                                           │
-│     all                 Install everything and test       │
+│     all                 Download, prepare, and transform  │
 │     fresh               Clean and install everything      │
 │     clean               Clean up build artifacts          │
 │     clobber             Clean up generated files          │
 │                                                           │
 │     install             Poetry install package            │
-│     download            Download data                     │
-│     run                 Run the transform                 │
+│     download            Download GOCAM models             │
+│     prepare             Convert YAML to JSON              │
+│     transform           Run Koza transform                │
+│     run                 Full pipeline (download+prepare+transform) │
 │                                                           │
 │     docs                Generate documentation            │
 │                                                           │
@@ -44,7 +46,7 @@ help:
 fresh: clean clobber all
 
 .PHONY: all
-all: install test
+all: download prepare transform
 
 .PHONY: install
 install: 
@@ -71,10 +73,16 @@ test:
 download:
 	$(RUN) ingest download
 
-.PHONY: run
-run: download
+.PHONY: prepare
+prepare:
+	$(RUN) ingest prepare
+
+.PHONY: transform  
+transform:
 	$(RUN) ingest transform
-	$(RUN) python scripts/generate-report.py
+
+.PHONY: run
+run: download prepare transform
 
 
 ### Linting, Formatting, and Cleaning ###
