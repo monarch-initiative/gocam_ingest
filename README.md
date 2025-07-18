@@ -117,9 +117,10 @@ Once installed, you can check that everything is working as expected:
 ```bash
 # Run the pytest suite
 make test
-# Download the data and run the Koza transform
-make download
-make run
+# Download GOCAM models (this will take several hours for complete download)
+poetry run ingest download
+# Run the Koza transform
+poetry run ingest transform
 ```
 
 ## Usage
@@ -133,24 +134,37 @@ make help
 
 ### Download and Transform
 
-Download the data for the gocam_ingest transform:
+#### Downloading GOCAM Models
+
+The download process fetches GOCAM models from the Gene Ontology Consortium's live API:
 
 ```bash
-poetry run gocam_ingest download
+poetry run ingest download
 ```
+
+This command:
+- Fetches the complete list of available models (~51,000 models) from the provider API
+- Downloads each model's YAML file with a 1-second delay between requests for rate limiting
+- Saves files to `data/gocam_models/` directory
+- Handles 404 errors gracefully for non-existent models
+- Skips already downloaded files, making the process resumable
+
+**Note:** The complete download takes several hours due to the large number of models and rate limiting. The process can be interrupted and resumed safely.
+
+#### Running the Transform
 
 To run the Koza transform for gocam_ingest:
 
 ```bash
-poetry run gocam_ingest transform
+poetry run ingest transform
 ```
 
 To see available options:
 
 ```bash
-poetry run gocam_ingest download --help
+poetry run ingest download --help
 # or
-poetry run gocam_ingest transform --help
+poetry run ingest transform --help
 ```
 
 ### Testing
