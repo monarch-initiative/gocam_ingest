@@ -3,9 +3,13 @@
 
 name: "Gene Ontology_GO causal activity models"
 metadata: "./src/gocam_ingest/metadata.yaml"
-format: "csv" # Format of the data files (csv or json)
+format: "json" # Format of the data files (csv or json)
 files:
-  - "./data/example_data.tsv"
+  - "./data/gocam_models/56aac7ad00000038.yaml"
+  - "./data/gocam_models/56aac7ad00000079.yaml"
+  - "./data/gocam_models/5745387b00001254.yaml"
+  - "./data/gocam_models/5745387b00001648.yaml"
+  - "./data/gocam_models/5745387b00001770.yaml"
 #################################################################################################
 ### file_archive is typically optional, but required if:                                      ###
 ###    1. files is not provided                                                               ###
@@ -37,8 +41,8 @@ edge_properties:
 
 ### Optional parameters - uncomment to use, or remove to ignore
 
-min_node_count: 10
-min_edge_count: 5
+# min_node_count: 1
+# min_edge_count: 1
 # sssom_config: List of SSSOM config options
 # field_type_map: Dict of field names and their type (using the FieldType enum)
 # filters: List of filters to apply
@@ -49,12 +53,5 @@ min_edge_count: 5
 # global_table: Path to a global table file
 # local_table: Path to a local table file
 
-### CSV specific parameters
-
-delimiter: "\t" # Delimiter for csv files (REQUIRED if format is csv)
-# columns: List of columns to include in output
-# header: Header row index
-# header_delimiter: Delimiter for header in csv files
-# header_prefix: Prefix for header in csv files
-# comment_char: Comment character for csv files
-# skip_blank_lines: Boolean - whether to skip blank lines in csv files
+### YAML specific parameters
+# No additional parameters needed for YAML format
