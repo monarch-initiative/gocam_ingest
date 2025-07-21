@@ -58,8 +58,8 @@ def get_entity_class_and_category(entity_id: str, entity_type: str = None):
     else:
         return Entity, ["biolink:Entity"]
 
-try:
-    while (row := koza_app.get_row()) is not None:
+while (row := koza_app.get_row()) is not None:
+    try:
         # Now each row is the full GOCAM model document
         model_data = row
         
@@ -185,10 +185,12 @@ try:
                 koza_app.write(entity)
                 entities_written.add(obj_id)
 
-except ValidationError as ve:
-    # Catch the Koza ValidationError bug and continue processing
-    print(f"Caught ValidationError (Koza bug): {ve}")
-    print("Transform completed despite ValidationError")
-except Exception as e:
-    print(f"Unexpected error: {e}")
-    print("Transform completed with errors")
+    except ValidationError as ve:
+        # Catch the Koza ValidationError bug and continue processing
+        print(f"Caught ValidationError (Koza bug): {ve}")
+        print("Continuing to next row despite ValidationError")
+        continue
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        print("Continuing to next row despite error")
+        continue
