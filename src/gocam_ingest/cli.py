@@ -120,8 +120,11 @@ def prepare(
             with open(yaml_file, 'r', encoding='utf-8') as f:
                 yaml_data = yaml.safe_load(f)
             
+            # Wrap the single model in an array for Koza
+            json_array = [yaml_data]
+            
             with open(json_file, 'w', encoding='utf-8') as f:
-                json.dump(yaml_data, f, indent=2, ensure_ascii=False)
+                json.dump(json_array, f, indent=2, ensure_ascii=False)
             
             typer.echo(f"Converted {yaml_file.name} → {json_file.name}")
             converted_files.append(json_file)

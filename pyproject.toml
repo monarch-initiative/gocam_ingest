@@ -28,6 +28,7 @@ mkdocs-material = ">=9.5"
 mkdocs-macros-plugin = "*"
 black = "*"
 ruff = "*"
+setuptools = "^80.9.0"
 
 [tool.poetry.scripts]
 ingest = "gocam_ingest.cli:app"
