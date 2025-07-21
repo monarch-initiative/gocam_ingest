@@ -28,7 +28,7 @@ def determine_node_category(entity_id: str, entity_type: str = None) -> list:
         elif entity_type and 'biological_process' in entity_type.lower():
             return ["biolink:BiologicalProcess"]
         else:
-            return ["biolink:OntologyClass"]
+            return ["biolink:Entity"]
     elif prefix == 'ECO':
         return ["biolink:EvidenceType"]
     elif prefix == 'PMID':
@@ -52,7 +52,7 @@ def get_entity_class_and_category(entity_id: str, entity_type: str = None):
         elif entity_type and 'biological_process' in entity_type.lower():
             return BiologicalProcessOrActivity, ["biolink:BiologicalProcessOrActivity"]
         else:
-            return Entity, ["biolink:OntologyClass"]
+            return Entity, ["biolink:Entity"]
     elif 'gomodel:' in entity_id:
         return BiologicalProcessOrActivity, ["biolink:BiologicalProcessOrActivity"]
     else:
