@@ -106,51 +106,48 @@ def prepare(
     
     typer.echo(f"Converting {len(yaml_files)} YAML files to JSON...")
     
-    converted_files = []
+    # Create one large JSONL file with all GOCAM models (one JSON object per line)
+    all_models = []
+    processed_count = 0
     
     for yaml_file in yaml_files:
-        json_file = output_path / f"{yaml_file.stem}.json"
-        
-        if json_file.exists():
-            typer.echo(f"Skipping {yaml_file.name} (JSON already exists)")
-            converted_files.append(json_file)
-            continue
-        
         try:
             with open(yaml_file, 'r', encoding='utf-8') as f:
                 yaml_data = yaml.safe_load(f)
             
-            # Wrap the single model in an array for Koza
-            json_array = [yaml_data]
+            all_models.append(yaml_data)
+            processed_count += 1
             
-            with open(json_file, 'w', encoding='utf-8') as f:
-                json.dump(json_array, f, indent=2, ensure_ascii=False)
-            
-            typer.echo(f"Converted {yaml_file.name} → {json_file.name}")
-            converted_files.append(json_file)
+            if processed_count % 1000 == 0:
+                typer.echo(f"Processed {processed_count} files...")
             
         except Exception as e:
             typer.echo(f"Error converting {yaml_file.name}: {e}")
             continue
     
-    typer.echo(f"Conversion complete. {len(converted_files)} JSON files in {output_path}")
+    # Write single JSONL file with all models (one JSON object per line)
+    combined_jsonl_file = output_path / "gocam_models_combined.jsonl"
     
-    # Update transform.yaml with the file list
+    typer.echo(f"Writing {len(all_models)} models to {combined_jsonl_file}...")
+    
+    with open(combined_jsonl_file, 'w', encoding='utf-8') as f:
+        for model in all_models:
+            json.dump(model, f, ensure_ascii=False)
+            f.write('\n')
+    
+    typer.echo(f"Conversion complete. Created {combined_jsonl_file} with {len(all_models)} models")
+    
+    # Update transform.yaml with the single JSONL file
     transform_yaml_path = Path(__file__).parent / "transform.yaml"
-    typer.echo(f"Updating {transform_yaml_path} with file list...")
+    typer.echo(f"Updating {transform_yaml_path} with combined JSONL file...")
     
     # Read current transform.yaml as YAML
     with open(transform_yaml_path, 'r') as f:
         transform_config = yaml.safe_load(f)
     
-    # Generate file list
-    file_list = []
-    for json_file in sorted(converted_files):
-        relative_path = f"./{json_file}"
-        file_list.append(relative_path)
-    
-    # Update the files section
-    transform_config['files'] = file_list
+    # Update to use single combined JSONL file and set format to jsonl
+    transform_config['files'] = [f"./{combined_jsonl_file}"]
+    transform_config['format'] = 'jsonl'
     
     # Remove file_archive field if present
     if 'file_archive' in transform_config:
@@ -160,7 +157,7 @@ def prepare(
     with open(transform_yaml_path, 'w') as f:
         yaml.dump(transform_config, f, default_flow_style=False, sort_keys=False)
     
-    typer.echo(f"Updated {transform_yaml_path} with {len(converted_files)} files")
+    typer.echo(f"Updated {transform_yaml_path} to use combined JSONL file with {len(all_models)} models")
 
 
 @app.command()
