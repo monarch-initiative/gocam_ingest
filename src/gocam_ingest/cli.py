@@ -150,8 +150,8 @@ def prepare(
     
     # Replace the files section
     import re
-    pattern = r'files:\s*\[.*?\]'
-    replacement = f"files:\n{file_list_str}"
+    pattern = r'files:\s*\n(\s*-.*?\n)*'
+    replacement = f"files:\n{file_list_str}\n"
     new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
     
     # Also remove file_archive line if present
