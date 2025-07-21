@@ -1,94 +1,23 @@
-# Config file for transforming data from a source
-# See additional/optional config parameters at https://koza.monarchinitiative.org/Ingests/source_config/
-
-name: "Gene Ontology_GO causal activity models"
-metadata: "./src/gocam_ingest/metadata.yaml"
-format: "json" # Format of the data files
+name: Gene Ontology_GO causal activity models
+metadata: ./src/gocam_ingest/metadata.yaml
+format: json
 files:
-  - "./data/gocam_models_converted_json/5b91dbd100001104.json"
-  - "./data/gocam_models_converted_json/5fce9b7300000451.json"
-  - "./data/gocam_models_converted_json/62f58d8800000934.json"
-  - "./data/gocam_models_converted_json/63c0ac2b00000899.json"
-  - "./data/gocam_models_converted_json/665912ed00000130.json"
-  - "./data/gocam_models_converted_json/67369e7600000485.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_104557.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1276541.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1336197.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1350341.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1352686.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1913401.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1914794.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1916603.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1921120.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1924772.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1925860.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_1929510.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2145484.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2384310.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2385852.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2441962.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2445022.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_2686271.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_3619429.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_3651257.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_3705292.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_4413820.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_88281.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_96765.json"
-  - "./data/gocam_models_converted_json/MGI_MGI_97877.json"
-  - "./data/gocam_models_converted_json/SGD_S000003137.json"
-  - "./data/gocam_models_converted_json/SGD_S000003567.json"
-  - "./data/gocam_models_converted_json/SGD_S000004308.json"
-  - "./data/gocam_models_converted_json/SGD_S000004758.json"
-  - "./data/gocam_models_converted_json/SGD_S000006335.json"
-  - "./data/gocam_models_converted_json/SGD_S000006765.json"
-  - "./data/gocam_models_converted_json/SGD_S000028637.json"
-  - "./data/gocam_models_converted_json/SYNGO_2099.json"
-  - "./data/gocam_models_converted_json/SYNGO_2133.json"
-  - "./data/gocam_models_converted_json/SYNGO_2563.json"
-  - "./data/gocam_models_converted_json/SYNGO_496.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-030131-5143.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-030326-5.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-031112-7.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-031118-91.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-040426-1991.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-050913-2.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-081001-1.json"
-  - "./data/gocam_models_converted_json/ZFIN_ZDB-GENE-081022-182.json"
-
+- ./data/gocam_models_converted_json/665912ed00000130.json
+- ./data/gocam_models_converted_json/MGI_MGI_1916603.json
+- ./data/gocam_models_converted_json/SYNGO_496.json
+- ./data/gocam_models_converted_json/ZFIN_ZDB-GENE-031112-7.json
+- ./data/gocam_models_converted_json/ZFIN_ZDB-GENE-050913-2.json
 node_properties:
-  # List of node properties to include, if ingesting nodes
-  # Remove if not ingesting nodes
-  - id
-  - name
-  - category
-
+- id
+- name
+- category
 edge_properties:
-  # List of edge properties to include if ingesting edges
-  # Remove if not ingesting edges
-  - id
-  - subject
-  - predicate
-  - object
-  - subject_category
-  - object_category
-  - category
-  - knowledge_level
-  - agent_type
-
-### Optional parameters - uncomment to use, or remove to ignore
-
-# min_node_count: 1
-# min_edge_count: 1
-# sssom_config: List of SSSOM config options
-# field_type_map: Dict of field names and their type (using the FieldType enum)
-# filters: List of filters to apply
-# required_properties: List of properties which must be in json data files
-# json_path: List of paths within JSON object containing data to process
-# transform_code: Path to a python file to transform the data
-# transform_mode: Which mode to use to process the transform file
-# global_table: Path to a global table file
-# local_table: Path to a local table file
-
-### YAML specific parameters
-# No additional parameters needed for YAML format
+- id
+- subject
+- predicate
+- object
+- subject_category
+- object_category
+- category
+- knowledge_level
+- agent_type

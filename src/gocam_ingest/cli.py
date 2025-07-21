@@ -136,29 +136,26 @@ def prepare(
     transform_yaml_path = Path(__file__).parent / "transform.yaml"
     typer.echo(f"Updating {transform_yaml_path} with file list...")
     
-    # Read current transform.yaml
+    # Read current transform.yaml as YAML
     with open(transform_yaml_path, 'r') as f:
-        content = f.read()
+        transform_config = yaml.safe_load(f)
     
     # Generate file list
-    file_list_lines = []
+    file_list = []
     for json_file in sorted(converted_files):
         relative_path = f"./{json_file}"
-        file_list_lines.append(f'  - "{relative_path}"')
+        file_list.append(relative_path)
     
-    file_list_str = "\n".join(file_list_lines)
+    # Update the files section
+    transform_config['files'] = file_list
     
-    # Replace the files section
-    import re
-    pattern = r'files:\s*\n(\s*-.*?\n)*'
-    replacement = f"files:\n{file_list_str}\n"
-    new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+    # Remove file_archive field if present
+    if 'file_archive' in transform_config:
+        del transform_config['file_archive']
     
-    # Also remove file_archive line if present
-    new_content = re.sub(r'.*file_archive:.*\n', '', new_content)
-    
+    # Write back as YAML
     with open(transform_yaml_path, 'w') as f:
-        f.write(new_content)
+        yaml.dump(transform_config, f, default_flow_style=False, sort_keys=False)
     
     typer.echo(f"Updated {transform_yaml_path} with {len(converted_files)} files")
 
